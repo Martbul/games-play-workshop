@@ -7,3 +7,5 @@ import * as request from '../lib/request'
     })
     return result
 }
+
+export const register = async (email, password) => request.post(`${baseUrl}/register`, {email,password})
