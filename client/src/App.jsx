@@ -12,13 +12,18 @@ import Register from "./components/register/Register"
 import GameCreate from "./components/game-create/GameCreate"
 import GameList from "./components/game-list/GameList"
 import GameDetails from "./components/game-details/GameDetails"
+import Logout from "./components/logout/Logout"
 
 
 
 
 function App() {
   const navigate = useNavigate()
-  const [auth, setAuth] = useState({})
+  const [auth, setAuth] = useState(()=>{
+    localStorage.removeItem('accessToken')
+
+    return {}
+  })
 
 
   // accessToken
@@ -33,6 +38,7 @@ function App() {
     const result = await authService.login(formValues.email, formValues.password)
     
     setAuth(result)
+    localStorage.setItem('accessToken', result.accessToken)
     navigate(Path.Home)
   }
 
@@ -41,15 +47,25 @@ function App() {
    const result = await authService.register(formValues.email, formValues.password)
   
    setAuth(result)
+   
+   localStorage.setItem('accessToken', result.accessToken)
     navigate(Path.Home)
+  }
+
+  const logoutHandler =()=>{
+    setAuth({})
+    
+    localStorage.removeItem('accessToken')
+    
   }
 
   const values = {
     registerSubmitHandler,
+    logoutHandler,
     loginSubmitHandler,
     username: auth.username || auth.email,
     email:auth.email,
-    isAuthenticated: !!auth.email
+    isAuthenticated: !!auth.accessToken
   }
 
   return (
@@ -65,6 +81,7 @@ function App() {
       <Route path="/login" element={<Login />}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/games/:gameId" element={<GameDetails/>}/>
+      <Route path={Path.Logout} element={<Logout/>}/>
     </Routes>
     
     </div>

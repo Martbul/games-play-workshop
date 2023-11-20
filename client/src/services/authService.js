@@ -9,3 +9,5 @@ import * as request from '../lib/request'
 }
 
 export const register = async (email, password) => request.post(`${baseUrl}/register`, {email,password})
+
+export const logout = ( )=> request.get(`${baseUrl}/logout`)
