@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import AuthContext from "../../contexts/authContext";
 import { useReducer } from "react";
 import reducer from './commentReducer'
+import useForm from "../../hooks/useForm";
 
 
 export default function GameDetails({}) {
@@ -13,7 +14,12 @@ export default function GameDetails({}) {
   const [game, setGame] = useState({});
   // const [comments, setComments] = useState([]);
 const [comments,dispatch] = useReducer(reducer,[])
-  useEffect(() => {
+ 
+
+
+
+
+useEffect(() => {
     gameService.getOne(gameId)
     .then(setGame);
 
@@ -26,13 +32,10 @@ const [comments,dispatch] = useReducer(reducer,[])
     });
   }, [gameId]);
 
-  const addCommentHandler = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-
-    const newComment = await commentsService.create(
+  const addCommentHandler = async (values) => {
+   const newComment = await commentsService.create(
       gameId,
-      formData.get("comment")
+     values.comment
     );
 
     newComment.owner = {email}
@@ -47,7 +50,18 @@ const [comments,dispatch] = useReducer(reducer,[])
   })
   };
 
-  return (
+
+
+const {formValues, onChange, onSubmit} = useForm(addCommentHandler,{
+  comment: '',
+
+})
+  
+
+
+return (
+
+
     <section id="game-details">
       <h1>Game Details</h1>
       <div className="info-section">
@@ -84,8 +98,8 @@ const [comments,dispatch] = useReducer(reducer,[])
 
       <article className="create-comment">
         <label>Add new comment:</label>
-        <form className="form" onSubmit={addCommentHandler}>
-          <textarea name="comment" placeholder="Comment......"></textarea>
+        <form className="form" onSubmit={onSubmit}>
+          <textarea name="comment" placeholder="Comment......" value={formValues.comment} onChange={onChange}></textarea>
           <input className="btn submit" type="submit" value="Add Comment" />
         </form>
       </article>
