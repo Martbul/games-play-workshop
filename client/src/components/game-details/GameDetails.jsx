@@ -1,15 +1,16 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import * as gameService from "../../services/gameServices";
 import * as commentsService from "../../services/commentServices";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import AuthContext from "../../contexts/authContext";
 import { useReducer } from "react";
 import reducer from './commentReducer'
 import useForm from "../../hooks/useForm";
-
+import {pathToUrl} from '../../utils/pathUtils'
+import Path from "../../paths";
 
 export default function GameDetails({}) {
-  const {email} = useContext(AuthContext)
+  const {email,userId} = useContext(AuthContext)
   const { gameId } = useParams();
   const [game, setGame] = useState({});
   // const [comments, setComments] = useState([]);
@@ -50,14 +51,15 @@ useEffect(() => {
   })
   };
 
-
-
-const {formValues, onChange, onSubmit} = useForm(addCommentHandler,{
+  //useMemo - suzdava tozi obekt samo pri maunt i natam vrushta sushtata referenciq
+const initialValues = useMemo(() =>({
   comment: '',
 
-})
-  
+}),[])
 
+const {formValues, onChange, onSubmit} = useForm(addCommentHandler,initialValues)
+  
+const isOwner = userId === game._ownerId
 
 return (
 
@@ -89,11 +91,11 @@ return (
           {comments.length === 0 && <p className="no-comment">No comments.</p>}
         </div>
 
-        {/*               
-                <div className="buttons">
-                    <a href="#" className="button">Edit</a>
-                    <a href="#" className="button">Delete</a>
-                </div>*/}
+                      {isOwner && ( <div className="buttons">
+                    <Link to={pathToUrl(Path.GameEdit,{gameId})} className="button">Edit</Link>
+                    <Link to="/games/:gameId/delete" className="button">Delete</Link>
+                </div>)}
+               
       </div>
 
       <article className="create-comment">
