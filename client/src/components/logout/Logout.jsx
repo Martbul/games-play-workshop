@@ -14,7 +14,10 @@ const{logoutHandler} = useContext(AuthContext)
                 logoutHandler()
                 navigate(Path.Home)
             })
-            .catch(()=>navigate(Path.Home))
+            .catch(()=>{
+                logoutHandler()
+                navigate('/login')
+            })
     },[])
     return null
 }
