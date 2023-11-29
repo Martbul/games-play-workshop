@@ -1,8 +1,8 @@
 import { useContext, useEffect, useReducer, useState, useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-import * as gameService from '../../services/gameServices';
-import * as commentService from '../../services/commentServices';
+import * as gameService from '../../services/gameService';
+import * as commentService from '../../services/commentService';
 import AuthContext from "../../contexts/authContext";
 import reducer from './commentReducer';
 import useForm from '../../hooks/useForm';
@@ -10,11 +10,11 @@ import { pathToUrl } from "../../utils/pathUtils";
 import Path from "../../paths";
 
 export default function GameDetails() {
+    const navigate = useNavigate();
     const { email, userId } = useContext(AuthContext);
     const [game, setGame] = useState({});
     const [comments, dispatch] = useReducer(reducer, []);
     const { gameId } = useParams();
-    const navigate = useNavigate()
 
     useEffect(() => {
         gameService.getOne(gameId)
@@ -43,23 +43,19 @@ export default function GameDetails() {
         })
     }
 
-    const deleteButtonClickHandler = async() =>{
-        const hasConfirmd = confirm(`Are you sure you want to delete ${game.title}`)
-      
-        if(hasConfirmd) {
-         await  gameService.remove(gameId)
+    const deleteButtonClickHandler = async () => {
+        const hasConfirmed = confirm(`Are you sure you want to delete ${game.title}`);
 
-         navigate('/games')
+        if (hasConfirmed) {
+            await gameService.remove(gameId);
+
+            navigate('/games');
         }
-    
-      }
+    }
 
-    // TODO: temp solution for form reinitialization
-    const initialValues = useMemo(() => ({
+    const { values, onChange, onSubmit } = useForm(addCommentHandler, {
         comment: '',
-    }), [])
-
-    const { values, onChange, onSubmit } = useForm(addCommentHandler, initialValues);
+    });
 
     return (
         <section id="game-details">
@@ -92,8 +88,7 @@ export default function GameDetails() {
                 {userId === game._ownerId && (
                     <div className="buttons">
                         <Link to={pathToUrl(Path.GameEdit, { gameId })} className="button">Edit</Link>
-        
-                   <button className='button' onClick={deleteButtonClickHandler}>Delete</button>
+                        <button className="button" onClick={deleteButtonClickHandler}>Delete</button>
                     </div>
                 )}
             </div>
